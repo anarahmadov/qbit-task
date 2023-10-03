@@ -1,0 +1,50 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: fastapiappdb
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-data://mysql/db
+      - ./:/./mysql/conf.d
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi-container
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      DATABASE_URL: mysql+pymysql://root:root@mysql/fastapiappdb
+
+  redis:
+    image: redis:6.0.7
+    container_name: redis-container
+    restart: always
+    volumes:
+      - redis_volume_data://redisdata/db
+    ports:
+      - 6379:6379
+
+  redis_insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis_insight-container
+    restart: always
+    ports:
+      - 8001:8001
+    volumes:
+      - redis_insight_volume_data:/db
+
+volumes:
+  mysql-data:
+  redis_volume_data:
+  redis_insight_volume_data:
