@@ -42,7 +42,7 @@ def signin(user_data: schemas.LoginUser, db: Session = Depends(get_db)):
     print(userEntity)
     print(user_data)
     # check if user exists
-    if not user_data:
+    if not userEntity:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"msg": "User not found"},
